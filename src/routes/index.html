@@ -158,8 +158,15 @@ export default {
 
 			var graphDiv = document.getElementById('box-annotate-graph');
 			console.log(graphDiv);
-			graphDiv.on('plotly_relayout', function() {
-				alert("woot")
+			graphDiv.on('plotly_relayout', function(data) {
+				// data is of the format :
+				/*
+				{shapes[0].x0: 2.7040169133192387
+				shapes[0].x1: 5.887244538407328
+				shapes[0].y0: 0.272936577713963
+				shapes[0].y1: 6.057067786640017}
+				*/
+				console.log(data);
 			})
 	}
 
