@@ -4,6 +4,28 @@
 
 <h1>Plotly editable annotations</h1>
 
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Annotation ID</th>
+      <th scope="col">x0</th>
+      <th scope="col">y0</th>
+      <th scope="col">x1</th>
+			<th scope="col">y1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">1</th>
+			<td>{annotations[0]['x0']}</td>
+			<td>{annotations[0]['y0']}</td>
+			<td>{annotations[0]['x1']}</td>
+			<td>{annotations[0]['y1']}</td>
+    </tr>
+
+  </tbody>
+</table>
+
 <div id="simple-annotate-graph"></div>
 <div id="box-annotate-graph"></div>
 <style>
@@ -42,7 +64,33 @@
 
 <script>
 export default {
+
+	preload (req) {
+		let annotations = [
+			{
+				'type': 'rect',
+				'x0': 3,
+				'y0': 1,
+				'x1': 6,
+				'y1': 2,
+				'fillcolor': 'rgba(128, 0, 128, 0.7)'
+			}
+		]
+		return annotations
+	},
+
+	data () {
+		return {
+			annotations : [{
+				'x0': 'undef',
+				'y0': 'udef',
+				'x1': 'udef',
+				'y1': 'undef'
+			}]
+		}
+	},
 	oncreate () {
+
 		this.plotly = require('plotly.js')
 		var trace1 = {
 		  x: [0, 1, 2, 3, 4, 5, 6, 7, 8],
@@ -86,24 +134,33 @@ export default {
 			  type: 'scatter'
 			};
 
+			let annotations = [
+				{
+					'type': 'rect',
+					'x0': 3,
+					'y0': 1,
+					'x1': 6,
+					'y1': 2,
+					'fillcolor': 'rgba(128, 0, 128, 0.7)'
+				}
+			]
+
+			this.set({annotations})
+
+			console.log(this.get().annotations[0]['x0']);
 			var boxData = [boxTrace1, boxTrace2];
 			let boxLayout = {
 					title: 'Simple editable box annotation',
-					'shapes' : [
-						{
-							'type': 'rect',
-							'x0': 3,
-							'y0': 1,
-							'x1': 6,
-							'y1': 2,
-							'fillcolor': 'rgba(128, 0, 128, 0.7)'
-						}
-					]
+					'shapes' : annotations
 			}
 
 			this.plotly.newPlot('box-annotate-graph', boxData, boxLayout, {editable:true});
 
-
+			var graphDiv = document.getElementById('box-annotate-graph');
+			console.log(graphDiv);
+			graphDiv.on('plotly_relayout', function() {
+				alert("woot")
+			})
 	}
 
 }
