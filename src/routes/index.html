@@ -15,13 +15,15 @@
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <th scope="row">1</th>
-			<td>{annotations[0]['x0']}</td>
-			<td>{annotations[0]['y0']}</td>
-			<td>{annotations[0]['x1']}</td>
-			<td>{annotations[0]['y1']}</td>
-    </tr>
+	{#each annotations as annotate}
+		<tr>
+			<th scope="row">1</th>
+			<td>{annotate['x0']}</td>
+			<td>{annotate['y0']}</td>
+			<td>{annotate['x1']}</td>
+			<td>{annotate['y1']}</td>
+		</tr>
+	{/each}
 
   </tbody>
 </table>
@@ -63,6 +65,8 @@
 </style>
 
 <script>
+import _ from 'underscore';
+
 export default {
 
 	preload (req) {
@@ -142,12 +146,19 @@ export default {
 					'x1': 6,
 					'y1': 2,
 					'fillcolor': 'rgba(128, 0, 128, 0.7)'
+				},
+				{
+					'type': 'rect',
+					'x0': -3,
+					'y0': -1,
+					'x1': 0,
+					'y1': 2,
+					'fillcolor': 'rgba(128, 0, 128, 0.7)'
 				}
 			]
 
 			this.set({annotations})
 
-			console.log(this.get().annotations[0]['x0']);
 			var boxData = [boxTrace1, boxTrace2];
 			let boxLayout = {
 					title: 'Simple editable box annotation',
@@ -155,10 +166,9 @@ export default {
 			}
 
 			this.plotly.newPlot('box-annotate-graph', boxData, boxLayout, {editable:true});
-
+			let that = this
 			var graphDiv = document.getElementById('box-annotate-graph');
-			console.log(graphDiv);
-			graphDiv.on('plotly_relayout', function(data) {
+			graphDiv.on('plotly_relayout', function(annotationData) {
 				// data is of the format :
 				/*
 				{shapes[0].x0: 2.7040169133192387
@@ -166,7 +176,21 @@ export default {
 				shapes[0].y0: 0.272936577713963
 				shapes[0].y1: 6.057067786640017}
 				*/
-				console.log(data);
+				let re = /\[.*?\]/
+				let myarr = re.exec(_.keys(annotationData))
+				//["[1]", index: 6, input: "shapes[1].x0,shapes[1].x1,shapes[1].y0,shapes[1].y1", groups: undefined]
+				let annotationObjIndex = myarr[0].replace(/[\[\]]/g,'' ); // this gives the object index which was changed
+				console.log(annotationObjIndex);
+				annotations[annotationObjIndex].x0 = Math.round(annotationData[`shapes[${annotationObjIndex}].x0`]);
+				annotations[annotationObjIndex].x1 = Math.round(annotationData[`shapes[${annotationObjIndex}].x1`]);
+				annotations[annotationObjIndex].y0 = Math.round(annotationData[`shapes[${annotationObjIndex}].y0`]);
+				annotations[annotationObjIndex].y1 = Math.round(annotationData[`shapes[${annotationObjIndex}].y1`]);
+
+				that.set({annotations})
+				// console.log(myarr);
+				// console.log(annotationData);
+				// console.log(_.keys(annotationData))
+
 			})
 	}
 
